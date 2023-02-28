@@ -2,6 +2,7 @@
 ## Variable cbt: checkouts by title (dataframe)
 
 library(tidyverse)
+library(tidyr)
 
 cbt <- read_csv("Checkouts_by_Title.csv")
 
@@ -16,9 +17,20 @@ cbt %>%
  
  cbt$PublicationYear <- trimws(cbt$PublicationYear, which = c("left"))  #gets rid of leading spaces
  
-#WIP extracting years and getting rid of any extra years
+#Extracting years and getting rid of any extra years
+ cbt <- cbt %>% 
+   extract(PublicationYear, into = "secYear", regex = "\\d{4}.*(\\d{4})", remove = FALSE, convert = TRUE) %>%
+   extract(PublicationYear,into = "firstYear", regex ="(\\d{4})", remove = FALSE, convert = TRUE)  
+ 
+cbt <- cbt %>% 
+  filter(!is.na(secYear)) %>% 
+  mutate(firstYear = replace(firstYear, !firstYear <= 2023 | !firstYear >= 1863, ""))
+
+#WIP trying to replace firstYear spaces with years in secYear
 # cbt <- cbt %>% 
-#   mutate(PublicationYear = str_sub(PublicationYear, 1, 4))  
+#   mutate(PublicationYear = replace(PublicationYear, cbt$PublicationYear, firstYear))
+
+   
  
 #checks to see if there are any out of place years
 cbt %>% 
