@@ -11,10 +11,6 @@ cbt <- read_csv("Checkouts_by_Title.csv")
 cbt %>% 
   head(10)
 
-#replacing extra characters and extra letters with nothing
- cbt$PublicationYear <- gsub("[[:punct:]]","", as.character(cbt$PublicationYear))  #gets rid of the puncuation in the PublicationYear column
- cbt$PublicationYear <- gsub("[^0-9]", " ", as.character(cbt$PublicationYear))  #keeps the space between years so they aren't squished together
- 
  cbt$PublicationYear <- trimws(cbt$PublicationYear, which = c("left"))  #gets rid of leading spaces
  
 #Extracting years and getting rid of any extra years
@@ -24,11 +20,13 @@ cbt %>%
  
 cbt <- cbt %>% 
   filter(!is.na(secYear)) %>% 
-  mutate(firstYear = replace(firstYear, !firstYear <= 2023 | !firstYear >= 1863, ""))
+  mutate(firstYear = replace(firstYear, !firstYear <= 2023 | !firstYear >= 1863, ""), 
+         secYear = replace(secYear, !secYear <= 2023, ""))
 
-#WIP trying to replace firstYear spaces with years in secYear
-# cbt <- cbt %>% 
-#   mutate(PublicationYear = replace(PublicationYear, cbt$PublicationYear, firstYear))
+#Replaces an empty spaces in firstYear with secYear data
+cbt <- cbt %>%
+ mutate(firstYear = ifelse(firstYear == "",secYear, firstYear ))
+
 
    
  
@@ -41,4 +39,14 @@ cbt %>%
 cbt %>% 
   select(PublicationYear) %>% 
   head()
+
+cbt %>% 
+  summarise(min(firstYear), max(firstYear), min(secYear), max(secYear))
+
+
+
+
+
+
+
   
