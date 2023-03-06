@@ -3,6 +3,7 @@
 
 library(tidyverse)
 library(tidyr)
+library(scales)
 
 cbt <- read_csv("Checkouts_by_Title.csv")
 
@@ -16,37 +17,20 @@ cbt %>%
 #Extracting years and getting rid of any extra years
  cbt <- cbt %>% 
    extract(PublicationYear, into = "secYear", regex = "\\d{4}.*(\\d{4})", remove = FALSE, convert = TRUE) %>%
-   extract(PublicationYear,into = "firstYear", regex ="(\\d{4})", remove = FALSE, convert = TRUE)  
+   extract(PublicationYear,into = "UpdatedYear", regex ="(\\d{4})", remove = FALSE, convert = TRUE)  
  
 cbt <- cbt %>% 
   filter(!is.na(secYear)) %>% 
-  mutate(firstYear = replace(firstYear, !firstYear <= 2023 | !firstYear >= 1863, ""), 
+  mutate(UpdatedYear = replace(UpdatedYear, !UpdatedYear <= 2023 | !UpdatedYear >= 1863, ""), 
          secYear = replace(secYear, !secYear <= 2023, ""))
 
 #Replaces an empty spaces in firstYear with secYear data
 cbt <- cbt %>%
- mutate(firstYear = ifelse(firstYear == "",secYear, firstYear ))
+ mutate(UpdatedYear = ifelse(UpdatedYear == "",secYear, UpdatedYear ))
 
-
+#Gets rid of PublicationYear and secYear to leave UpdatedYear by itself
+cbt <-  cbt[,-12]
+cbt <- cbt[,-13]
    
- 
-#checks to see if there are any out of place years
-cbt %>% 
-  filter(!is.na(PublicationYear)) %>% 
-  summarise(latest = max(PublicationYear), oldest = min(PublicationYear))
-
-#checks to see if years look right or not
-cbt %>% 
-  select(PublicationYear) %>% 
-  head()
-
-cbt %>% 
-  summarise(min(firstYear), max(firstYear), min(secYear), max(secYear))
-
-
-
-
-
-
 
   
