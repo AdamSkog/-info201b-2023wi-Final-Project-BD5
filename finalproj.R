@@ -21,8 +21,8 @@ cbt %>%
  
  #filtering out out of place numbers from UpdatedYear
 cbt <- cbt %>% 
-  mutate(UpdatedYear = replace(UpdatedYear, !UpdatedYear <= 2024 | !UpdatedYear >= 1863, ""), 
-         secYear = replace(secYear, !secYear <= 2024, ""))
+  mutate(UpdatedYear = replace(UpdatedYear, !UpdatedYear < 2023 | !UpdatedYear >= 1863, ""), 
+         secYear = replace(secYear, !secYear < 2023, ""))
 
 #Replaces an empty spaces in firstYear with secYear data
 cbt <- cbt %>%
@@ -47,13 +47,14 @@ cbt %>%
 #finding publication year with most releases of media
 cbt %>% 
   group_by(UpdatedYear) %>% 
-  filter(!is.na(UpdatedYear)) %>%
+  filter(!is.na(UpdatedYear),
+         UpdatedYear >= 1944) %>%  #done for readability of rest of years
   summarise(media_count = length(Title)) %>% 
   ggplot(aes(x = UpdatedYear, y = media_count, fill = factor(UpdatedYear)))+
-  geom_col(width = .8)+
-  scale_color_brewer(palette = "Set2")+
-  geom_line(group = 1)+
-  scale_x_continuous(breaks = seq(0, 2023, 6))+
+  geom_col()+
+  geom_line(group = 1, size = 1.1, col = "cyan3")+
+  geom_point(size = 0.8)+
+  scale_x_continuous(breaks = seq(0, 2022, 2))+
   theme(axis.text = element_text(size = 10, hjust = 1, angle = 45), legend.key.size = unit(0.3, "line"))+
   labs(title = "Amount of Media Released Yearly",x = "Year",y = "Amount of Media Released",fill = "Year")
 
