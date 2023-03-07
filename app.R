@@ -22,7 +22,7 @@ ui <- fluidPage(
              p("Here are the first few rows of the dataset."),
              mainPanel(tableOutput("headData"))),
     tabPanel(
-      "PopularPlots",
+      "Popular Plots",
       sidebarLayout(
         sidebarPanel(
           checkboxGroupInput("type",
@@ -30,9 +30,23 @@ ui <- fluidPage(
                              choices = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK"),
                              selected = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK")
           ),
-          checkboxInput("display", "Display line", TRUE)
+          checkboxInput("display", "Display Trend Line", TRUE)
         ),
         mainPanel(plotOutput("popular"))
+      )
+    ),
+    tabPanel("Usage Class Data",
+      sidebarLayout(
+        sidebarPanel(
+          checkboxInput("usageTypeDisplay", "Display line", F),
+          checkboxGroupInput("usagetype",
+                             "Which usage type do you want to see?",
+                             choices = list("Physical", "Digital"),
+                             selected = list("Physical", "Digital")
+            
+          )
+        ),
+        mainPanel(plotOutput("usageclassplot"))
       )
     )
   )
@@ -59,6 +73,27 @@ server <- function(input, output) {
         ggplot(aes(x=CheckoutYear, y=totalCheckouts)) +
         geom_point(aes(color=MaterialType)) +
         labs(x = "Year", y = "Total Checkouts", title = "Scatterplot of 5 most popular types of media")
+    }
+  })
+  
+  output$usageclassplot <- renderPlot({
+    if (!input$usageTypeDisplay) {
+      data %>% 
+        filter(UsageClass %in% input$usagetype, CheckoutYear != 2023) %>% 
+        mutate(time = CheckoutYear + CheckoutMonth/12) %>% 
+        group_by(CheckoutYear, UsageClass) %>% 
+        summarize(checkoutsum = sum(Checkouts)) %>%
+        ggplot(aes(CheckoutYear, checkoutsum, col = UsageClass)) + geom_point() + geom_line() +
+        labs(x = "Time", y = "Number of Checkouts", col = "Type")
+    } else {
+      data %>% 
+        filter(UsageClass %in% input$usagetype, CheckoutYear != 2023) %>% 
+        mutate(time = CheckoutYear + CheckoutMonth/12) %>% 
+        group_by(CheckoutYear, UsageClass) %>% 
+        summarize(checkoutsum = sum(Checkouts)) %>%
+        ggplot(aes(CheckoutYear, checkoutsum, col = UsageClass)) + geom_point() + geom_line() +
+        geom_smooth(method = lm, se = F) +
+        labs(x = "Time", y = "Number of Checkouts", col = "Type")
     }
   })
 }
