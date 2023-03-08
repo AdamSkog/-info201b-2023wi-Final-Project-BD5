@@ -17,7 +17,8 @@ ui <- fluidPage(
   titlePanel("Seattle Public Library Checkouts"),
   tabsetPanel(
     tabPanel("Overview",
-             p("The major questions we are exploring in this project are:"),
+             p("This app is geared towards helping library management figure out how to stock their shelves.
+               The major questions we are exploring in this project are:"),
              p("1. What are the most popular types of media being checked out?"),
              p("2. How have the total checkouts of these media types changed over time?"),
              p("3. How have the total checkouts of the two usage classes changed over time?"),
