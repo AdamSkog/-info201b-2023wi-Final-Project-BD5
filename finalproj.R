@@ -42,17 +42,19 @@ cbt %>%
   filter(rank(desc(media_count)) < 6) %>% 
   arrange(desc(media_count))
 
-#seeing which media 
+#seeing which media has been released the most
 cbt %>% 
   group_by(MaterialType) %>% 
+  filter(!is.na(UpdatedYear)) %>% 
+  
   summarise(release = length(Title)) %>% 
-  filter(rank(desc(release)) <= 5) %>% 
+  filter(rank(desc(release)) <= 6) %>% 
   arrange(desc(release))
 
 #Seeing how much media is being released over time
 cbt %>% 
   group_by(UpdatedYear, MaterialType) %>% 
-  filter(MaterialType %in% c("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK"), !is.na(UpdatedYear)) %>% 
+  filter(MaterialType %in% c("AUDIOBOOK", "BOOK", "EBOOK","SOUNDDISC" , "VIDEODISC", "MUSIC"), !is.na(UpdatedYear)) %>% 
   summarise(media_count = length(Title)) %>% 
   ggplot(aes(UpdatedYear, media_count, fill = MaterialType))+
   geom_col()+

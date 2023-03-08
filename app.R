@@ -51,7 +51,7 @@ ui <- fluidPage(
              p("The dataset begins with checkouts that occurred in April 2005."),
              p("We have", strong(nrow(data)), "rows of data and", strong(ncol(data)), "columns."),
              p("Here are the first few rows of the dataset."),
-             mainPanel(tableOutput("headdata"))),
+             mainPanel(tableOutput("headData"))),
     
     tabPanel(
       "Popular Plots",
@@ -78,9 +78,10 @@ ui <- fluidPage(
       "Material Publication Data",
       sidebarLayout(
         sidebarPanel(
-          p("The Seattle Public Library has a many forms of media and the amount that was released changed over time."),
-          checkboxGroupInput("material", "Select a form of media", choices = c("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK")),
-          checkboxInput("publicationDisplay", "Display Graph", TRUE)
+          p("The Seattle Public Library has a many forms of media and the amount that was released changed over time. 
+            This graph allows you to select between the forms of media provided below:"),
+          checkboxGroupInput("material", "Select a form of media", choices = c("AUDIOBOOK", "BOOK", "EBOOK","SOUNDDISC" , "VIDEODISC", "MUSIC")),
+          checkboxInput("publicationDisplay", "Change between line graph and bar graph", TRUE)
           
         ), 
         mainPanel(plotOutput("publication"))
@@ -156,27 +157,32 @@ server <- function(input, output) {
   
   #Publication Plot
   output$publication <- renderPlot({
+
     if(input$publicationDisplay){
       data %>% 
-        
-        group_by(UpdatedYear, MaterialType) %>% 
-        filter(MaterialType %in% input$material,!is.na(UpdatedYear)) %>%
+        group_by(UpdatedYear, MaterialType) %>%
+        filter(MaterialType %in% input$material, !is.na(UpdatedYear)) %>% 
         summarise(media_count = length(Title)) %>% 
-        ggplot(aes(UpdatedYear, media_count, fill = MaterialType))+
-        geom_col()+
-        scale_x_continuous(breaks = seq(0, 2022, 4))+
-        theme(axis.text = element_text(size = 10, hjust = 1, angle = 45), legend.key.size = unit(0.3, "line"))+
-        labs(title = "Amount of Media Released Yearly",x = "Year",y = "Amount of Media Released",fill = "Material Type")
+      ggplot(aes(UpdatedYear, media_count, fill = MaterialType))+
+      geom_col()+
+      scale_x_continuous(breaks = seq(0, 2022, 4))+
+      theme(axis.text = element_text(size = 10, hjust = 1, angle = 45), legend.key.size = unit(0.3, "line"))+
+      labs(title = "Amount of Media Released Yearly",x = "Year",y = "Amount of Media Released",fill = "Material Type")
         
     }
     else{
       data %>% 
-      group_by(UpdatedYear, MaterialType) %>% 
-      filter(MaterialType %in% input$material,!is.na(UpdatedYear)) %>%
-      summarise(media_count = length(Title)) %>% 
-      ggplot(aes(UpdatedYear, media_count, fill = MaterialType))+
+        group_by(UpdatedYear, MaterialType) %>% 
+        filter(MaterialType %in% input$material, !is.na(UpdatedYear)) %>%
+        summarise(media_count = length(Title)) %>% 
+      ggplot(aes(UpdatedYear, media_count, col = MaterialType))+
+      geom_line()+
+      scale_x_continuous(breaks = seq(0, 2022, 4))+
+      theme(axis.text = element_text(size = 10, hjust = 1, angle = 45), legend.key.size = unit(0.3, "line"))+
       labs(title = "Amount of Media Released Yearly",x = "Year",y = "Amount of Media Released",fill = "Material Type")
     }
+    
+
   })
   
   # Usage Class Data
