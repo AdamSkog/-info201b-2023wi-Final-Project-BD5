@@ -114,9 +114,10 @@ server <- function(input, output) {
   })
   
   output$usageclass_summary <- renderText({
-    usageclassdata() %>% 
-      nrow() %>% 
-      paste("Number of years observed:", .)
+    usageclassrows <- usageclassdata() %>% 
+      nrow()
+    if (usageclassrows != 0)
+      paste("Number of years observed:", usageclassrows)
   })
   
   output$usageclass_max <- renderText({
