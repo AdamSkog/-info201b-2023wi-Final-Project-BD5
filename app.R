@@ -16,7 +16,12 @@ data <- read_delim("./Checkouts_by_Title.csv")
 ui <- fluidPage(
   titlePanel("Seattle Public Library Checkouts"),
   tabsetPanel(
-    tabPanel("About", 
+    tabPanel("Overview",
+             p("The major questions we are exploring in this project are:"),
+             p("1. What are the most popular types of media being checked out?"),
+             p("2. How have the total checkouts of these media types changed over time?"),
+             p("3. How have the total checkouts of the two usage classes changed over time?"),
+             p("4. Which months have the most and fewest checkouts?"),
              p("This dataset includes a", em("monthly"),"count of Seattle Public Library checkouts by 
                         title for physical and electronic items."),
              p("The dataset begins with checkouts that occurred in April 2005."),
