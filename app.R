@@ -16,7 +16,9 @@ data <- read_delim("./Checkouts_by_Title.csv")
 ui <- fluidPage(
   titlePanel("Seattle Public Library Checkouts"),
   tabsetPanel(
-    tabPanel("About", p("This dataset includes a", em("monthly"),"count of Seattle Public Library checkouts by title for physical and electronic items."),
+    tabPanel("About", 
+             p("This dataset includes a", em("monthly"),"count of Seattle Public Library checkouts by 
+                        title for physical and electronic items."),
              p("The dataset begins with checkouts that occurred in April 2005."),
              p("We have", strong(nrow(data)), "rows of data and", strong(ncol(data)), "columns."),
              p("Here are the first few rows of the dataset."),
@@ -38,7 +40,10 @@ ui <- fluidPage(
     tabPanel("Usage Class Data",
       sidebarLayout(
         sidebarPanel(
-          checkboxInput("usageTypeDisplay", "Display line", F),
+          p("There are two usage types that are accounted for in the Seattle Public Library,", strong("Physical"), 
+            "and", strong("Digital."), "\nThe following plot can display these types, and show a",
+            em("trend line"), "corresponding to its type."),
+          checkboxInput("usageTypeDisplay", "Display trend line", F),
           checkboxGroupInput("usagetype",
                              "Which usage type do you want to see?",
                              choices = list("Physical", "Digital"),
@@ -46,16 +51,27 @@ ui <- fluidPage(
             
           )
         ),
-        mainPanel(plotOutput("usageclassplot"))
+        mainPanel(
+          plotOutput("usageclassplot"),
+          textOutput("usageclass_summary"),
+          textOutput("usageclass_max"),
+          p(),
+          p(strong("Why do we want to know this information?")),
+          p("We learn the valuable information regarding which types are most popular, and we can predict the
+            most purchased types in the future by use of the", em("trend line"), "which allows for the Seattle
+            Public Library, and other libraries similar to it, to understand and accomodate for the types according 
+            to the relative distributions of checkouts they have.")
+        )
       )
     )
   )
 )
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-  
+  # About
   output$headData <- renderTable({head(data)})
   
+  # Popular Plot
   output$popular <- renderPlot({
     if(input$display) {
       data %>% filter(MaterialType %in% input$type, CheckoutYear != 2023) %>%
@@ -76,24 +92,40 @@ server <- function(input, output) {
     }
   })
   
+  # Usage Class Data
+  usageclassdata <- reactive({
+    data %>% 
+      filter(UsageClass %in% input$usagetype, CheckoutYear != 2023) %>% 
+      group_by(CheckoutYear, UsageClass) %>% 
+      summarize(checkoutsum = sum(Checkouts))
+  })
+  
   output$usageclassplot <- renderPlot({
-    if (!input$usageTypeDisplay) {
-      data %>% 
-        filter(UsageClass %in% input$usagetype, CheckoutYear != 2023) %>% 
-        mutate(time = CheckoutYear + CheckoutMonth/12) %>% 
-        group_by(CheckoutYear, UsageClass) %>% 
-        summarize(checkoutsum = sum(Checkouts)) %>%
-        ggplot(aes(CheckoutYear, checkoutsum, col = UsageClass)) + geom_point() + geom_line() +
-        labs(x = "Time", y = "Number of Checkouts", col = "Type")
-    } else {
-      data %>% 
-        filter(UsageClass %in% input$usagetype, CheckoutYear != 2023) %>% 
-        mutate(time = CheckoutYear + CheckoutMonth/12) %>% 
-        group_by(CheckoutYear, UsageClass) %>% 
-        summarize(checkoutsum = sum(Checkouts)) %>%
+    if (input$usageTypeDisplay) {
+      usageclassdata() %>% 
         ggplot(aes(CheckoutYear, checkoutsum, col = UsageClass)) + geom_point() + geom_line() +
         geom_smooth(method = lm, se = F) +
         labs(x = "Time", y = "Number of Checkouts", col = "Type")
+    } else {
+      usageclassdata() %>% 
+        ggplot(aes(CheckoutYear, checkoutsum, col = UsageClass)) + geom_point() + geom_line() +
+        labs(x = "Time", y = "Number of Checkouts", col = "Type")
+    }
+  })
+  
+  output$usageclass_summary <- renderText({
+    usageclassdata() %>% 
+      nrow() %>% 
+      paste("Number of years observed:", .)
+  })
+  
+  output$usageclass_max <- renderText({
+    max <- usageclassdata()$checkoutsum %>% 
+      max()
+    if(!is.infinite(max)) {
+      paste("Maximum checkouts of", max, "at year", usageclassdata()$CheckoutYear[usageclassdata()$checkoutsum == max])
+    } else {
+      ""
     }
   })
 }
