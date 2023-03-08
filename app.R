@@ -33,6 +33,7 @@ data <-  data[,-12]
 data <- data[,-13]
 
 
+order_vector <- c("Ascending" = 'asc', "Descending" = 'desc')
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -61,11 +62,17 @@ ui <- fluidPage(
                              choices = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK"),
                              selected = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK")
           ),
-          checkboxInput("display", "Display Line", TRUE)
+          checkboxInput("display", "Display Line", TRUE),
+          radioButtons("order",
+                       "What are the most popular types of media being checked out? Sort by total checkouts in the order of:",
+                       order_vector,
+                       selected = order_vector[2])
         ),
-        mainPanel(plotOutput("popular"))
-      )
-    ),
+        mainPanel(plotOutput("popular"),
+                  br(),
+                  HTML('<b>Below table is: media types ordered by the number of total checkouts</b>'),
+                  dataTableOutput('popular_table')),
+    )),
     
     tabPanel(
       "Material Publication Data",
@@ -134,6 +141,17 @@ server <- function(input, output) {
         geom_point(aes(color=MaterialType)) +
         labs(x = "Year", y = "Total Checkouts", title = "Scatterplot of 5 most popular types of media")
     }
+  })
+  
+  # Popular interactive table
+  output$popular_table <- renderDataTable({
+    t <- data %>% group_by(MaterialType) %>% summarise(total_checkouts = sum(Checkouts))
+    if (input$order == 'asc') {
+      t <- t %>% arrange(total_checkouts)
+    } else if (input$order == 'desc') {
+      t <- t %>% arrange(desc(total_checkouts))
+    }
+    return(t)
   })
   
   #Publication Plot
