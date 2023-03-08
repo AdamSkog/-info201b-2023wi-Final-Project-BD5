@@ -35,7 +35,7 @@ data <- data[,-13]
 
 order_vector <- c("Ascending" = 'asc', "Descending" = 'desc')
 
-# Define UI for application that draws a histogram
+# Define UI logic
 ui <- fluidPage(
   titlePanel("Seattle Public Library Checkouts"),
   tabsetPanel(
@@ -114,13 +114,21 @@ ui <- fluidPage(
             to the relative distributions of checkouts they have.")
         )
       )
-    )
+    ),
+    tabPanel("Conclusion", p("A notable takeaway from this project is that there has been a clear upward trend in the number checkouts of Ebooks and Audiobooks."),
+             p("The broader conclusion is that there has a been an upward trend in the number of checkouts of digital types of media."),
+             p("The data quality was reasonable since there were no rows with NA values in the columns we were using. For the publication year column,
+               we had to do some cleaning to make sure the column was a single year value."),
+             p("We think the dataset is unbaised, but since the data comes from a single library, we are not sure if it is an accurate representation of all libraries."),
+             p("In the future, we might use hypothesis tests to see answer the overview questions. We might also use data from multiple libraries to get a more accurate estimation."),
+             p("The following table shows digital sales by year in ascending order."),
+             mainPanel(tableOutput("dig")))
   )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
-  # About
+  # Overview
   output$headData <- renderTable({head(data)})
 
   # Popular Plot
@@ -221,6 +229,13 @@ server <- function(input, output) {
     } else {
       ""
     }
+  })
+  
+  # Digital by year
+  output$dig <- renderTable({
+    data %>% filter(UsageClass == "Digital") %>%
+      group_by(CheckoutYear) %>%
+      summarize(checkoutsum = sum(Checkouts))
   })
 }
 
