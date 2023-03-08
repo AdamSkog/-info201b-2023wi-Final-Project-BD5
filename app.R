@@ -80,7 +80,7 @@ ui <- fluidPage(
         sidebarPanel(
           p("The Seattle Public Library has a many forms of media and the amount that was released changed over time. 
             This graph allows you to select between the forms of media provided below:"),
-          checkboxGroupInput("material", "Select a form of media", choices = c("AUDIOBOOK", "BOOK", "EBOOK","SOUNDDISC" , "VIDEODISC", "MUSIC")),
+          checkboxGroupInput("material", "Select a form of media", choices = c("AUDIOBOOK", "BOOK", "EBOOK","SOUNDDISC" , "VIDEODISC")),
           checkboxInput("publicationDisplay", "Change between line graph and bar graph", TRUE)
           
         ), 
