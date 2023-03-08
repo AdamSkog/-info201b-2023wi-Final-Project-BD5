@@ -35,7 +35,7 @@ data <- data[,-13]
 
 order_vector <- c("Ascending" = 'asc', "Descending" = 'desc')
 
-# Define UI for application that draws a histogram
+# Define UI logic
 ui <- fluidPage(
   titlePanel("Seattle Public Library Checkouts"),
   tabsetPanel(
@@ -51,7 +51,7 @@ ui <- fluidPage(
              p("The dataset begins with checkouts that occurred in April 2005."),
              p("We have", strong(nrow(data)), "rows of data and", strong(ncol(data)), "columns."),
              p("Here are the first few rows of the dataset."),
-             mainPanel(tableOutput("headdata"))),
+             mainPanel(tableOutput("headData"))),
     
     tabPanel(
       "Popular Plots",
@@ -117,9 +117,9 @@ ui <- fluidPage(
   )
 )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
-  # About
+  # Overview
   output$headData <- renderTable({head(data)})
 
   # Popular Plot
