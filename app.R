@@ -32,7 +32,7 @@ ui <- fluidPage(
                              choices = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK"),
                              selected = list("BOOK", "VIDEODISC", "EBOOK", "SOUNDDISC", "AUDIOBOOK")
           ),
-          checkboxInput("display", "Display Trend Line", TRUE)
+          checkboxInput("display", "Display Line", TRUE)
         ),
         mainPanel(plotOutput("popular"))
       )
@@ -43,7 +43,7 @@ ui <- fluidPage(
           p("There are two usage types that are accounted for in the Seattle Public Library,", strong("Physical"), 
             "and", strong("Digital."), "\nThe following plot can display these types, and show a",
             em("trend line"), "corresponding to its type."),
-          checkboxInput("usageTypeDisplay", "Display trend line", F),
+          checkboxInput("usageTypeDisplay", "Display Trend line", F),
           checkboxGroupInput("usagetype",
                              "Which usage type do you want to see?",
                              choices = list("Physical", "Digital"),
