@@ -115,6 +115,35 @@ ui <- fluidPage(
         )
       )
     ),
+    
+    #checkout by month
+    tabPanel(
+      "Book checkouts by month",
+      h1(strong("Checkouts by month")),
+      sidebarLayout(
+        sidebarPanel(
+          selectInput(
+            inputId = "CheckoutYear",
+            label = "Select Year:",
+            choices = sort(unique(data$CheckoutYear)),
+            selected = NULL
+          ),
+          sliderInput(
+            inputId = "month_range",
+            label = "Select month range:",
+            min = 1,
+            max = 12,
+            value = c(1, 12),
+            step = 1
+          )
+        ),
+        mainPanel(
+          tableOutput("table1"),
+          plotOutput("plot1"),
+          hr(),
+        )
+      )
+    ),
     tabPanel("Conclusion", p("A notable takeaway from this project is that there has been a clear upward trend in the number checkouts of Ebooks and Audiobooks."),
              p("The broader conclusion is that there has a been an upward trend in the number of checkouts of digital types of media."),
              p("The data quality was reasonable since there were no rows with NA values in the columns we were using. For the publication year column,
@@ -237,6 +266,29 @@ server <- function(input, output) {
       group_by(CheckoutYear) %>%
       summarize(checkoutsum = sum(Checkouts))
   })
+  
+  #checkout by month data table
+  table_data <- reactive({
+    data %>%
+      filter(CheckoutYear == input$CheckoutYear) %>%
+      filter( CheckoutMonth >= input$month_range[1] & CheckoutMonth <= input$month_range[2]) %>%
+      group_by(CheckoutMonth) %>%
+      summarize(total_checkout2 = as.integer(sum(Checkouts)), unit = "books") %>%
+      mutate(month_name = month.name[CheckoutMonth]) %>%
+      select(month_name, total_checkout2)
+  })
+  
+  output$plot1 <- renderPlot({
+    ggplot(table_data(), aes(x = month_name, y = total_checkout2, fill = month_name)) +
+      geom_bar(stat = "identity", fill = "purple") +
+      xlab("Month") +
+      ylab("Checkouts") +
+      ggtitle("Book checkouts by month") +
+      scale_x_discrete(limits = month.name)
+  })
+  output$table1 <- renderTable({
+    table_data()
+  }, digits = 0)
 }
 
 # Run the application 
