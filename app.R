@@ -118,7 +118,7 @@ ui <- fluidPage(
     
     #checkout by month
     tabPanel(
-      "Book checkouts by month",
+      "Book Checkouts by Month",
       h1(strong("Checkouts by month")),
       sidebarLayout(
         sidebarPanel(
@@ -138,6 +138,8 @@ ui <- fluidPage(
           )
         ),
         mainPanel(
+          p("This data table and bar graph explains the question Which months have the most and fewest checkouts.
+            The data table and graph allows you to select specific year and month range."),
           tableOutput("table1"),
           plotOutput("plot1"),
           hr(),
@@ -273,13 +275,13 @@ server <- function(input, output) {
       filter(CheckoutYear == input$CheckoutYear) %>%
       filter( CheckoutMonth >= input$month_range[1] & CheckoutMonth <= input$month_range[2]) %>%
       group_by(CheckoutMonth) %>%
-      summarize(total_checkout2 = as.integer(sum(Checkouts)), unit = "books") %>%
-      mutate(month_name = month.name[CheckoutMonth]) %>%
-      select(month_name, total_checkout2)
+      summarize(Total_Checkout = as.integer(sum(Checkouts)), unit = "books") %>%
+      mutate(Month = month.name[CheckoutMonth]) %>%
+      select(Month, Total_Checkout)
   })
   
   output$plot1 <- renderPlot({
-    ggplot(table_data(), aes(x = month_name, y = total_checkout2, fill = month_name)) +
+    ggplot(table_data(), aes(x = Month, y = Total_Checkout, fill = Month)) +
       geom_bar(stat = "identity", fill = "purple") +
       xlab("Month") +
       ylab("Checkouts") +
